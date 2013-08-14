@@ -1,12 +1,12 @@
 (ns clojure-boids.core
+  (:require [clojure-boids.graphics.core :as graphics])
   (:import [org.lwjgl.opengl Display DisplayMode]))
 
-(defn init [] 
+(defn init []
   (let [display-mode (DisplayMode. 800 600)]
     (Display/setDisplayMode display-mode)
-    (Display/create)))
-
-(defn draw [] ())
+    (Display/create)
+    (graphics/init)))
 
 (defn cleanup []
   (Display/destroy)
@@ -15,10 +15,14 @@
 (defn main-loop []
   (if (not (Display/isCloseRequested))
     (do
-      (draw)
-      (recur))
-    (cleanup)))
+      (graphics/draw)
+      (Display/update)
+      (recur))))
 
-(defn -main []
+(defn start-game [] 
   (init)
-  (.start (Thread. main-loop)))
+  (main-loop)
+  (cleanup))
+
+(defn -main [] 
+  (.start (Thread. start-game)))
