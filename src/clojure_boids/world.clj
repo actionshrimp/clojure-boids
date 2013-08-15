@@ -1,10 +1,8 @@
-(ns clojure-boids.world)
-
-(defn random-boid [world-w world-h n]
-  (let [m 50
-        w (- world-w (* 2 m))
-        h (- world-h (* 2 m))]
-  { :x (+ (rand w) m) :y (+ (rand h) m) }))
+(ns clojure-boids.world
+  (:require [clojure-boids.boid :as boid]))
 
 (defn initial [[w h :as world-size] boid-count]
-  { :width w :height h :boids (map (partial random-boid w h) (range boid-count)) })
+  {:width w :height h :boids (map #(boid/random w h %) (range boid-count))})
+
+(defn update [world]
+  (assoc world :boids (map boid/update (world :boids))))

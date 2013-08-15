@@ -22,7 +22,7 @@
     (do
       (graphics/draw world)
       (Display/update)
-      (recur world))))
+      (recur (world/update world)))))
 
 (defn start-game [] 
   (let [world (world/initial world-size boid-count)]
