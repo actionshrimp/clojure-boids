@@ -10,7 +10,7 @@
 (defn clear []
   (GL11/glClear (bit-or GL11/GL_COLOR_BUFFER_BIT GL11/GL_DEPTH_BUFFER_BIT)))
 
-(defn draw-square []
+(defn draw-triangle []
   (GL11/glBegin GL11/GL_TRIANGLES)
   (GL11/glColor3f 0.5 0.5 1.0)
   (GL11/glVertex2f 100 100)
@@ -20,4 +20,4 @@
 
 (defn draw []
   (clear)
-  (draw-square))
+  (draw-triangle))
