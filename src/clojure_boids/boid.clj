@@ -1,4 +1,5 @@
-(ns clojure-boids.boid)
+(ns clojure-boids.boid
+  (:import [java.lang.Math]))
 
 (def velocity 1)
 
@@ -6,7 +7,8 @@
   (let [m 50
         w (- world-w (* 2 m))
         h (- world-h (* 2 m))]
-  {:x (+ (rand w) m) :y (+ (rand h) m) :a 0}))
+  {:x (+ (rand w) m) :y (+ (rand h) m) :a (/ Math/PI 2)}))
 
-(defn update [{:keys [x y] :as boid}]
-  (assoc boid :y (+ y velocity)))
+(defn update [world {:keys [x y a] :as boid}]
+  (let [v-x (Math/sin a) v-y (Math/cos a)]
+    (assoc boid :x (+ x v-x) :y (+ y v-y))))

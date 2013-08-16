@@ -5,4 +5,4 @@
   {:width w :height h :boids (map #(boid/random w h %) (range boid-count))})
 
 (defn update [world]
-  (assoc world :boids (map boid/update (world :boids))))
+  (assoc world :boids (map (partial boid/update world) (world :boids))))
