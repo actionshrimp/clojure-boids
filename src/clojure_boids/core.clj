@@ -1,34 +1,40 @@
 (ns clojure-boids.core
   (:require [clojure-boids.graphics.core :as graphics]
-            [clojure-boids.world :as world]
-            )
+            [clojure-boids.world :as world])
   (:import [org.lwjgl.opengl Display DisplayMode]))
 
 (def world-size [800 600])
 (def boid-count 20)
 
 (defn init [world]
-  (let [display-mode (DisplayMode. (world :width) (world :height))]
+  (let [display-mode (DisplayMode. (@world :width) (@world :height))]
     (Display/setDisplayMode display-mode)
     (Display/create)
-    (graphics/init world)))
+    (graphics/init @world)))
 
 (defn cleanup []
   (Display/destroy)
   (prn "Bye!"))
 
-(defn main-loop [world]
-  (if (not (Display/isCloseRequested))
-    (do
-      (graphics/draw world)
-      (Display/update)
-      (recur (world/update world)))))
+(defn exit? []
+  (Display/isCloseRequested))
 
-(defn start-game [] 
+(defn ui-loop [world]
+  (loop []
+    (if-not (exit?)
+      (do 
+        (graphics/draw @world)
+        (Display/update)
+        (recur))
+      (do 
+        (world/stop world)
+        (cleanup)))))
+
+(defn simulation [] 
   (let [world (world/initial world-size boid-count)]
     (init world)
-    (main-loop world)
-    (cleanup)))
+    (.start (Thread. #(world/simulate world)))
+    (ui-loop world)))
 
 (defn -main [] 
-  (.start (Thread. start-game)))
+  (.start (Thread. simulation)))
