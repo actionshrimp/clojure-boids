@@ -1,8 +1,8 @@
 (ns clojure-boids.boid
   (:import [java.lang.Math]))
 
-(def v-mag 0.1)
-(def w-max-mag 0.005)
+(def v-mag 100)
+(def w-max-mag 2.0)
 
 (defn random [world-w world-h n]
   (let [world-margin 50
@@ -30,7 +30,7 @@
 (defn calculate-w [t {:keys [s v a]}]
   (let [relative-t (sub t s)
         target-v (normalize relative-t)
-        w-mag (mag-bounded w-max-mag (* -1 (- (dot v target-v) 1)))
+        w-mag (* w-max-mag (* -1 (- (dot v target-v) 1)))
         steer-right-vec [(second v) (- (first v))]
         delta-v (sub target-v v)
         w-direc (dot delta-v steer-right-vec)]

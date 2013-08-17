@@ -3,9 +3,13 @@
            [org.lwjgl.opengl GL11]))
 
 (defn init [world]
+  (GL11/glEnable GL11/GL_TEXTURE_2D)
+  (GL11/glShadeModel GL11/GL_SMOOTH)
+  (GL11/glEnable GL11/GL_BLEND)
+  (GL11/glBlendFunc GL11/GL_SRC_ALPHA GL11/GL_ONE_MINUS_SRC_ALPHA)
   (GL11/glMatrixMode GL11/GL_PROJECTION)
   (GL11/glLoadIdentity)
-  (GL11/glOrtho 0 (world :width) 0 (world :height) 1 -1)
+  (GL11/glOrtho 0 (world :width) (world :height) 0 1 -1)
   (GL11/glMatrixMode GL11/GL_MODELVIEW))
 
 (defn clear []
@@ -24,6 +28,9 @@
     (GL11/glEnd)
     (GL11/glPopMatrix)))
 
+(defn draw-world [world]
+  (doall (map draw-boid (world :boids))))
+
 (defn draw [world]
   (clear)
-  (doall (map draw-boid (world :boids))))
+  (draw-world world))

@@ -1,9 +1,10 @@
 (ns clojure-boids.world
   (:require [clojure-boids.boid :as boid])
-  (:import [java.lang.System]))
+  (:import [java.lang.System]
+           [java.util.concurrent TimeUnit]))
 
 (defn get-time []
-  (/ (System/nanoTime) 1000000))
+  (/ (System/nanoTime) 1000000000))
 
 (defn initial [[w h :as world-size] boid-count]
   (atom {:running true
