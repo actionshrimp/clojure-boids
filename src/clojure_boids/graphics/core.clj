@@ -18,9 +18,9 @@
     (GL11/glRotatef (Math/toDegrees a) 0 0 -1)
     (GL11/glBegin GL11/GL_TRIANGLES)
     (GL11/glColor3f 0.5 0.5 1.0)
-    (GL11/glVertex2f 0 0)
-    (GL11/glVertex2f 10 0)
-    (GL11/glVertex2f 5 10)
+    (GL11/glVertex2f -5 -5)
+    (GL11/glVertex2f 5 -5)
+    (GL11/glVertex2f 0 5)
     (GL11/glEnd)
     (GL11/glPopMatrix)))
 
