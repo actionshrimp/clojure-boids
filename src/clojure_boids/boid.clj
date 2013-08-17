@@ -1,8 +1,9 @@
 (ns clojure-boids.boid
+  (:require [clojure-boids.util.vec :as v])
   (:import [java.lang.Math]))
 
 (def v-mag 100)
-(def w-max-mag 2.0)
+(def w-max-mag 1.0)
 
 (defn random [world-w world-h n]
   (let [world-margin 50
@@ -11,33 +12,46 @@
         a (rand (* 2 Math/PI))]
   {:s [(+ (rand w) world-margin) 
        (+ (rand h) world-margin)] 
+   :target-s [0 0]
    :a a
    :v [(Math/sin a) (Math/cos a)] }))
 
-(defn mag-bounded [max-mag value]
-  (max (- max-mag) (min max-mag value)))
-
-(defn dot [v1 v2]
-  (apply + (doall (map * v1 v2))))
-
-(defn normalize [v]
-  (let [mag (Math/sqrt (dot v v))]
-    (doall (map #(/ % mag) v))))
-
-(defn sub [v1 v2]
-  (doall (map - v1 v2)))
-
 (defn calculate-w [t {:keys [s v a]}]
-  (let [relative-t (sub t s)
-        target-v (normalize relative-t)
-        w-mag (* w-max-mag (* -1 (- (dot v target-v) 1)))
+  (let [relative-t (v/sub t s)
+        target-v (v/normalize relative-t)
+        w-mag (* w-max-mag (* -1 (- (v/dot v target-v) 1)))
         steer-right-vec [(second v) (- (first v))]
-        delta-v (sub target-v v)
-        w-direc (dot delta-v steer-right-vec)]
-    (if (> w-direc 0) w-mag (- w-mag))))
+        delta-v (v/sub target-v v)
+        w-direc (v/dot delta-v steer-right-vec)]
+    (if (> w-direc 0) 
+      w-mag 
+      (- w-mag))))
+
+;The distance from an obstacle a boid needs to start turning 
+;in order to avoid it if aiming straight at it
+(def panic-distance 
+  (* v-mag (/ (/ Math/PI 2) w-max-mag)))
+
+(defn avoid-wall-vec [world {:keys [s v] :as boid}]
+  (let [test-vec (v/scale panic-distance v)
+        test-pos (v/add s test-vec)
+        m 100
+        w (- (world :width) m)
+        h (- (world :height) m)
+        x (first test-pos)
+        y (second test-pos)]
+    [(cond (> x w) (- w (- x w))
+           (< x m) (- m (- x m))
+           :else (first test-pos))
+     (cond (> y h) (- h (- y h))
+           (< y m) (- m (- y m))
+           :else (second test-pos))]))
+
+(defn calc-target [world boid]
+  (avoid-wall-vec world boid))
 
 (defn update [dt world {:keys [s a] :as boid}]
-  (let [target-s [400 400] 
+  (let [target-s (calc-target world boid)
         w (calculate-w target-s boid)
         new-a (+ a (* dt w))
         new-v-unit [(Math/sin new-a) (Math/cos new-a)]
@@ -45,10 +59,6 @@
         new-s (doall (map + s ds))]
     (assoc boid
            :s new-s
+           :target-s target-s
            :a new-a
            :v new-v-unit)))
-
-;The distance from an obstacle a boid needs to start turning 
-;in order to avoid it if aiming straight at it
-(def panic-distance 
-  ())
