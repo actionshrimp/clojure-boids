@@ -24,16 +24,17 @@
   (let [mag (Math/sqrt (dot v v))]
     (doall (map #(/ % mag) v))))
 
+(defn sub [v1 v2]
+  (doall (map - v1 v2)))
+
 (defn calculate-w [t {:keys [s v a]}]
-  (let [relative-t (doall (map - t s))
+  (let [relative-t (sub t s)
         target-v (normalize relative-t)
         w-mag (mag-bounded w-max-mag (* -1 (- (dot v target-v) 1)))
         steer-right-vec [(second v) (- (first v))]
-        delta-v (doall (map - target-v v))
+        delta-v (sub target-v v)
         w-direc (dot delta-v steer-right-vec)]
-    (if (> w-direc 0)
-      w-mag
-      (- w-mag))))
+    (if (> w-direc 0) w-mag (- w-mag))))
 
 (defn update [dt world {:keys [s a] :as boid}]
   (let [target-s [400 400] 
