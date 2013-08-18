@@ -3,10 +3,11 @@
   (:import [java.lang.Math]))
 
 (def v-mag 100)
-(def w-max-mag 1.0)
+(def margin 50)
+(def w-max-mag 2)
 
 (defn random [world-w world-h n]
-  (let [world-margin 50
+  (let [world-margin margin
         w (- world-w (* 2 world-margin))
         h (- world-h (* 2 world-margin))
         a (rand (* 2 Math/PI))]
@@ -35,7 +36,7 @@
 (defn avoid-wall-vec [world {:keys [s v] :as boid}]
   (let [test-vec (v/scale panic-distance v)
         test-pos (v/add s test-vec)
-        m 100
+        m margin
         w (- (world :width) m)
         h (- (world :height) m)
         x (first test-pos)

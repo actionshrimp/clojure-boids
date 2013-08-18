@@ -4,7 +4,7 @@
   (:import [org.lwjgl.opengl Display DisplayMode]))
 
 (def world-size [800 600])
-(def boid-count 50)
+(def boid-count 200)
 
 (defn init [world]
   (let [display-mode (DisplayMode. (@world :width) (@world :height))]
