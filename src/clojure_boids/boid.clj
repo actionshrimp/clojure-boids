@@ -33,6 +33,7 @@
 (def panic-distance 
   (* v-mag (/ (/ Math/PI 2) w-max-mag)))
 
+;Calculate a target position which will result in steering away from walls
 (defn avoid-wall-vec [world {:keys [s v] :as boid}]
   (let [test-vec (v/scale panic-distance v)
         test-pos (v/add s test-vec)

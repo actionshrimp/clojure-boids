@@ -5,12 +5,13 @@
 
 (def world-size [800 600])
 (def boid-count 200)
+(def diagnostics? true)
 
 (defn init [world]
   (let [display-mode (DisplayMode. (@world :width) (@world :height))]
     (Display/setDisplayMode display-mode)
     (Display/create)
-    (graphics/init @world)))
+    (graphics/init @world diagnostics?)))
 
 (defn cleanup []
   (Display/destroy)
@@ -24,7 +25,7 @@
   (loop []
     (if-not (exit?)
       (do 
-        (graphics/draw @world)
+        (graphics/draw @world diagnostics?)
         (Display/update)
         (recur))
       (do 

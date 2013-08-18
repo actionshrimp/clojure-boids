@@ -15,5 +15,6 @@
   :dependencies [[org.clojure/clojure "1.4.0"]
                  [org.lwjgl.lwjgl/lwjgl "2.9.0"]
                  [org.lwjgl.lwjgl/lwjgl-platform "2.9.0"
-                  :classifier ~lwjgl-native-classifier :native-prefix ""]]
+                  :classifier ~lwjgl-native-classifier :native-prefix ""]
+                 [slick-util "1.0.0"]]
   :main clojure-boids.core)
