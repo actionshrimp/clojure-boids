@@ -29,7 +29,7 @@
         [dt-avg-val dt-avg-n] dt-avg
         t2 (get-time)
         dt (- t2 t)
-        new-boids (update-boids dt w)]
+        new-boids (update-boids-parallel dt w)]
     (swap! world assoc
            :dt-avg [(/ (+ dt (* dt-avg-n dt-avg-val)) (+ 1 dt-avg-n))
                     (+ 1 dt-avg-n)]

@@ -37,5 +37,5 @@
 
 (defn draw [world]
   (draw-orienter)
-  (draw-avg-update-time world)
-  (doall (map draw-boid-details (world :boids))))
+  (doall (map draw-boid-details (world :boids)))
+  (draw-avg-update-time world))
