@@ -7,19 +7,23 @@
   (let [mag (Math/sqrt (dot v v))]
     (doall (map #(/ % mag) v))))
 
+(defn mag [v]
+  (Math/sqrt (dot v v)))
+
 (defn mag-bounded [max-mag v]
-  (let [mag (Math/sqrt (dot v v))]
-    (if (> mag max-mag)
+  (let [m (mag v)]
+    (if (> m max-mag)
       (normalize v) v)))
 
-(defn add [v1 v2]
-  (doall (map + v1 v2)))
+(defn add [& vs]
+  (if (> (count vs) 1)
+    (doall (apply (partial map +) vs))
+    (first vs)))
 
-(defn sub [v1 v2]
-  (doall (map - v1 v2)))
+(defn sub [& vs]
+  (if (> (count vs) 1)
+    (doall (apply (partial map -) vs))
+    (first vs)))
 
-(defn scale [s v1]
-  (doall (map #(* s %) v1)))
-
-(defn mag [v]
-  (dot v v))
+(defn scale [s & vs]
+  (doall (apply (partial map #(* s %)) vs)))

@@ -5,6 +5,17 @@
 (def v-mag 100)
 (def margin 50)
 (def w-max-mag 2)
+;
+;The distance from an obstacle a boid needs to start turning 
+;in order to avoid it if aiming straight at it
+(def panic-distance 
+  (* v-mag (/ (/ Math/PI 2) w-max-mag)))
+
+(def awareness panic-distance)
+(def wall-evasion 1)
+(def alignment 1)
+(def separation 100)
+(def cohesion 100)
 
 (defn random [world-w world-h n]
   (let [world-margin margin
@@ -13,11 +24,12 @@
         a (rand (* 2 Math/PI))
         x (+ (rand w) world-margin)
         y (+ (rand h) world-margin)]
-  {:s [x y] 
+  {:n n
+   :s [x y] 
    :target-v [0 0]
    :a a
    :v [(Math/sin a) (Math/cos a)]
-   :r-awareness 100}))
+   :r-awareness awareness}))
 
 (defn calculate-w [target-v {:keys [s v a]}]
   (let [w-mag (* w-max-mag (* -1 (- (v/dot v target-v) 1)))
@@ -28,11 +40,6 @@
       w-mag 
       (- w-mag))))
 
-;The distance from an obstacle a boid needs to start turning 
-;in order to avoid it if aiming straight at it
-(def panic-distance 
-  (* v-mag (/ (/ Math/PI 2) w-max-mag)))
-
 ;Calculate a target position which will result in steering away from walls
 (defn avoid-wall-vec [world {:keys [s v] :as boid}]
   (let [test-vec (v/scale panic-distance v)
@@ -41,30 +48,36 @@
         w (- (world :width) m)
         h (- (world :height) m)
         x (first test-pos)
-        y (second test-pos)]
-    (v/sub [(cond (> x w) (- w (- x w))
-                  (< x m) (- m (- x m))
-                  :else x)
-            (cond (> y h) (- h (- y h))
-                  (< y m) (- m (- y m))
-                  :else y)]
-           s)))
+        y (second test-pos)
+        [s-x s-y] s]
+    [(cond (> x w) (- w (- x w) s-x)
+            (< x m) (- m (- x m) s-x)
+            :else 0)
+      (cond (> y h) (- h (- y h) s-y)
+            (< y m) (- m (- y m) s-y)
+            :else 0)]))
 
-(defn is-neighbour? [x r possible-neighbour]
-  (let [p-n-x (possible-neighbour :x)
-        distance (v/mag (v/sub p-n-x x))]
-    (< distance r)))
+(defn is-neighbour? [n s r poss-neighbour]
+  (let [poss-neighbour-n (poss-neighbour :n)
+        poss-neighbour-s (poss-neighbour :s)]
+    (and (not= n poss-neighbour-n)
+         (let [distance (v/mag (v/sub poss-neighbour-s s))]
+           (< distance r)))))
 
-(defn align-with-neighbours [neighbours {:keys [v]}])
+(defn align-with-neighbours [neighbours {:keys [v]}]
+  (if (> (count neighbours) 0)
+    (v/normalize (apply v/add (map :v neighbours)))
+    [0 0]))
 
-(defn calc-target-v [world {:keys [x v r-awareness] :as boid}]
- ;(let [neighbours (filter #(is-neighbour? x r-awareness %) (world :boids))]
-    (v/normalize (v/add v (avoid-wall-vec world boid)))
- ;  )
-  )
+(defn calc-target-v [world neighbours {:keys [n s v r-awareness] :as boid}]
+  (v/normalize 
+    (v/add v
+           (v/scale alignment (align-with-neighbours neighbours boid))
+           (v/scale wall-evasion (avoid-wall-vec world boid)))))
 
-(defn update [dt world {:keys [s a] :as boid}]
-  (let [target-v (calc-target-v world boid)
+(defn update [dt world {:keys [n s r-awareness a] :as boid}]
+  (let [neighbours (filter #(is-neighbour? n s r-awareness %) (world :boids))
+        target-v (calc-target-v world neighbours boid)
         w (calculate-w target-v boid)
         new-a (+ a (* dt w))
         new-v-unit [(Math/sin new-a) (Math/cos new-a)]
