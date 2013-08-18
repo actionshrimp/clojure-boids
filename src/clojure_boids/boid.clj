@@ -10,17 +10,17 @@
   (let [world-margin margin
         w (- world-w (* 2 world-margin))
         h (- world-h (* 2 world-margin))
-        a (rand (* 2 Math/PI))]
-  {:s [(+ (rand w) world-margin) 
-       (+ (rand h) world-margin)] 
-   :target-s [0 0]
+        a (rand (* 2 Math/PI))
+        x (+ (rand w) world-margin)
+        y (+ (rand h) world-margin)]
+  {:s [x y] 
+   :target-v [0 0]
    :a a
-   :v [(Math/sin a) (Math/cos a)] }))
+   :v [(Math/sin a) (Math/cos a)]
+   :r-awareness 100}))
 
-(defn calculate-w [t {:keys [s v a]}]
-  (let [relative-t (v/sub t s)
-        target-v (v/normalize relative-t)
-        w-mag (* w-max-mag (* -1 (- (v/dot v target-v) 1)))
+(defn calculate-w [target-v {:keys [s v a]}]
+  (let [w-mag (* w-max-mag (* -1 (- (v/dot v target-v) 1)))
         steer-right-vec [(second v) (- (first v))]
         delta-v (v/sub target-v v)
         w-direc (v/dot delta-v steer-right-vec)]
@@ -42,25 +42,36 @@
         h (- (world :height) m)
         x (first test-pos)
         y (second test-pos)]
-    [(cond (> x w) (- w (- x w))
-           (< x m) (- m (- x m))
-           :else (first test-pos))
-     (cond (> y h) (- h (- y h))
-           (< y m) (- m (- y m))
-           :else (second test-pos))]))
+    (v/sub [(cond (> x w) (- w (- x w))
+                  (< x m) (- m (- x m))
+                  :else x)
+            (cond (> y h) (- h (- y h))
+                  (< y m) (- m (- y m))
+                  :else y)]
+           s)))
 
-(defn calc-target [world boid]
-  (avoid-wall-vec world boid))
+(defn is-neighbour? [x r possible-neighbour]
+  (let [p-n-x (possible-neighbour :x)
+        distance (v/mag (v/sub p-n-x x))]
+    (< distance r)))
+
+(defn align-with-neighbours [neighbours {:keys [v]}])
+
+(defn calc-target-v [world {:keys [x v r-awareness] :as boid}]
+ ;(let [neighbours (filter #(is-neighbour? x r-awareness %) (world :boids))]
+    (v/normalize (v/add v (avoid-wall-vec world boid)))
+ ;  )
+  )
 
 (defn update [dt world {:keys [s a] :as boid}]
-  (let [target-s (calc-target world boid)
-        w (calculate-w target-s boid)
+  (let [target-v (calc-target-v world boid)
+        w (calculate-w target-v boid)
         new-a (+ a (* dt w))
         new-v-unit [(Math/sin new-a) (Math/cos new-a)]
         ds (doall (map #(* dt v-mag %) new-v-unit))
         new-s (doall (map + s ds))]
     (assoc boid
            :s new-s
-           :target-s target-s
+           :target-v target-v
            :a new-a
            :v new-v-unit)))

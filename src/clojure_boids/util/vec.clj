@@ -20,3 +20,6 @@
 
 (defn scale [s v1]
   (doall (map #(* s %) v1)))
+
+(defn mag [v]
+  (dot v v))

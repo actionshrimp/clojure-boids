@@ -24,23 +24,24 @@
         update-boid #(boid/update dt w %)]
     (doall (apply concat (pmap #(doall (map update-boid %)) chunks)))))
 
-(defn update [world]
+(defn update [world parallel?]
   (let [{:keys [t dt-avg boids] :as w} @world
         [dt-avg-val dt-avg-n] dt-avg
         t2 (get-time)
         dt (- t2 t)
-        new-boids (update-boids-parallel dt w)]
+        update-fn (if parallel? update-boids-parallel update-boids)
+        new-boids (update-fn dt w)]
     (swap! world assoc
            :dt-avg [(/ (+ dt (* dt-avg-n dt-avg-val)) (+ 1 dt-avg-n))
                     (+ 1 dt-avg-n)]
            :t t2
            :boids new-boids)))
 
-(defn simulate [world]
+(defn simulate [world parallel?]
   (loop []
     (if (@world :running)
       (do
-        (update world)
+        (update world parallel?)
         (recur)))))
 
 (defn stop [world]

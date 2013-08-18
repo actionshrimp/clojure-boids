@@ -4,8 +4,9 @@
   (:import [org.lwjgl.opengl Display DisplayMode]))
 
 (def world-size [800 600])
-(def boid-count 800)
+(def boid-count 80)
 (def diagnostics? true)
+(def parallel? true)
 
 (defn init [world]
   (let [display-mode (DisplayMode. (@world :width) (@world :height))]
@@ -35,7 +36,7 @@
 (defn simulation [] 
   (let [world (world/initial world-size boid-count)]
     (init world)
-    (.start (Thread. #(world/simulate world)))
+    (.start (Thread. #(world/simulate world parallel?)))
     (ui-loop world)))
 
 (defn -main [] 

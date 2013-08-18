@@ -23,17 +23,18 @@
   (GL11/glEnable GL11/GL_DEPTH_TEST)
   (GL11/glDisable GL11/GL_TEXTURE_2D))
 
-(defn draw-target-vec [[s-x s-y] [target-s-x target-s-y]]
+(defn draw-target-vec [[s-x s-y] [target-v-x target-v-y]]
   (do (GL11/glPushMatrix)
       (GL11/glColor3f 1.0 0 0)
+      (GL11/glTranslatef s-x s-y 0)
       (GL11/glBegin GL11/GL_LINES)
-      (GL11/glVertex2f s-x s-y)
-      (GL11/glVertex2f target-s-x target-s-y)
+      (GL11/glVertex2f 0 0)
+      (GL11/glVertex2f (* 50 target-v-x) (* 50 target-v-y))
       (GL11/glEnd)
       (GL11/glPopMatrix)))
 
-(defn draw-boid-details [{:keys [s target-s]}]
-  (draw-target-vec s target-s))
+(defn draw-boid-details [{:keys [s target-v]}]
+  (draw-target-vec s target-v))
 
 (defn draw [world]
   (draw-orienter)
