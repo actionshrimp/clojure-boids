@@ -12,10 +12,13 @@
   (* v-mag (/ (/ Math/PI 2) w-max-mag)))
 
 (def awareness panic-distance)
-(def wall-evasion 1)
+(def wall-evasion 5)
 (def alignment 100)
 (def separation 1000)
 (def cohesion 100)
+
+(defn spatial-hash-key [boid]
+  (map #(int (/ % awareness)) (boid :s)))
 
 (defn random [world-w world-h n]
   (let [world-margin margin
@@ -57,13 +60,6 @@
             (< y m) (- m (- y m) s-y)
             :else 0)]))
 
-(defn is-neighbour? [n s r poss-neighbour]
-  (let [poss-neighbour-n (poss-neighbour :n)
-        poss-neighbour-s (poss-neighbour :s)]
-    (and (not= n poss-neighbour-n)
-         (let [distance (v/mag (v/sub poss-neighbour-s s))]
-           (< distance r)))))
-
 (defn align-with-neighbours [neighbours {:keys [v]}]
   (if (> (count neighbours) 0)
     (v/normalize (apply v/add (map :v neighbours)))
@@ -93,8 +89,23 @@
       (v/scale cohesion (group-with-neighbours neighbours boid))
       (v/scale wall-evasion (avoid-wall-vec world boid)))))
 
-(defn update [dt world {:keys [n s r-awareness a] :as boid}]
-  (let [neighbours (filter #(is-neighbour? n s r-awareness %) (world :boids))
+(defn is-neighbour? [n s r poss-neighbour]
+  (let [poss-neighbour-n (poss-neighbour :n)
+        poss-neighbour-s (poss-neighbour :s)]
+    (and (not= n poss-neighbour-n)
+         (let [distance (v/mag (v/sub poss-neighbour-s s))]
+           (< distance r)))))
+
+(defn neighbours [{:keys [boid-spatial-hash]} {:keys [n s r-awareness] :as boid}]
+  (let [[hx hy] (spatial-hash-key boid)
+        neighbour-hashes [[(- hx 1) (- hy 1)] [hx (- hy 1)] [(+ hx 1) (- hy 1)]
+                          [(- hx 1)    hy   ] [hx    hy   ] [(+ hx 1)    hy   ]
+                          [(- hx 1) (+ hy 1)] [hx (+ hy 1)] [(+ hx 1) (+ hy 1)]]
+        possible-neighbours (mapcat boid-spatial-hash neighbour-hashes)]
+    (filter #(is-neighbour? n s r-awareness %) possible-neighbours)))
+
+(defn update [dt world {:keys [s a] :as boid}]
+  (let [neighbours (neighbours world boid)
         target-v (calc-target-v world neighbours boid)
         w (calculate-w target-v boid)
         new-a (+ a (* dt w))

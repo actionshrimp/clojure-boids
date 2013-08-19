@@ -7,11 +7,13 @@
   (/ (System/nanoTime) 1000000000))
 
 (defn initial [[w h :as world-size] boid-count]
-  (atom {:running true
-         :t (get-time)
-         :dt-avg [0 0]
-         :width w :height h 
-         :boids (map #(boid/random w h %) (range boid-count))}))
+  (let [boids (map #(boid/random w h %) (range boid-count))]
+    (atom {:running true
+           :t (get-time)
+           :dt-avg [0 0]
+           :width w :height h 
+           :boids boids
+           :boid-spatial-hash (group-by boid/spatial-hash-key boids)})))
 
 (defn update-boids [dt {:keys [boids] :as w}]
   (doall (map #(boid/update dt w %) boids)))
@@ -30,12 +32,14 @@
         t2 (get-time)
         dt (- t2 t)
         update-fn (if parallel? update-boids-parallel update-boids)
-        new-boids (update-fn dt w)]
+        new-boids (update-fn dt w)
+        hashed-boids (group-by boid/spatial-hash-key new-boids)]
     (swap! world assoc
            :dt-avg [(/ (+ dt (* dt-avg-n dt-avg-val)) (+ 1 dt-avg-n))
                     (+ 1 dt-avg-n)]
            :t t2
-           :boids new-boids)))
+           :boids new-boids
+           :boid-spatial-hash hashed-boids)))
 
 (defn simulate [world parallel?]
   (loop []
