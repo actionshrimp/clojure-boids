@@ -14,8 +14,8 @@
 (def awareness panic-distance)
 (def wall-evasion 1)
 (def alignment 1)
-(def separation 100)
-(def cohesion 100)
+(def separation 5)
+(def cohesion 2)
 
 (defn random [world-w world-h n]
   (let [world-margin margin
@@ -69,10 +69,22 @@
     (v/normalize (apply v/add (map :v neighbours)))
     [0 0]))
 
+(defn avoid-neighbours [neighbours {:keys [s]}]
+  (if (> (count neighbours) 0)
+    (v/normalize (apply v/add (map #(v/sub s %) (map :s neighbours))))
+    [0 0]))
+
+(defn group-with-neighbours [neighbours {:keys [s]}]
+  (if (> (count neighbours) 0)
+    (v/normalize (v/sub (apply v/add (map :s neighbours)) s))
+    [0 0]))
+
 (defn calc-target-v [world neighbours {:keys [n s v r-awareness] :as boid}]
   (v/normalize 
     (v/add v
            (v/scale alignment (align-with-neighbours neighbours boid))
+           (v/scale separation (avoid-neighbours neighbours boid))
+           (v/scale cohesion (group-with-neighbours neighbours boid))
            (v/scale wall-evasion (avoid-wall-vec world boid)))))
 
 (defn update [dt world {:keys [n s r-awareness a] :as boid}]

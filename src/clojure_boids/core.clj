@@ -4,7 +4,7 @@
   (:import [org.lwjgl.opengl Display DisplayMode]))
 
 (def world-size [800 600])
-(def boid-count 80)
+(def boid-count 100)
 (def diagnostics? false)
 (def parallel? true)
 
