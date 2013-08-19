@@ -12,7 +12,7 @@
   (* v-mag (/ (/ Math/PI 2) w-max-mag)))
 
 (def awareness panic-distance)
-(def wall-evasion 100)
+(def wall-evasion 1)
 (def alignment 100)
 (def separation 1000)
 (def cohesion 100)
