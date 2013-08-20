@@ -5,7 +5,7 @@
 
 (def world-size [800 600])
 (def boid-count 200)
-(def diagnostics? false)
+(def diagnostics? true)
 (def parallel? true)
 
 (defn init [world]
@@ -26,7 +26,7 @@
   (loop []
     (if-not (exit?)
       (do 
-        (graphics/draw @world diagnostics?)
+        (graphics/render @world diagnostics?)
         (Display/update)
         (recur))
       (do 

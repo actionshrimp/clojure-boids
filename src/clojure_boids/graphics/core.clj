@@ -1,9 +1,17 @@
 (ns clojure-boids.graphics.core
-  (:require [clojure-boids.graphics.diagnostics :as diagnostics])
+  (:require [clojure-boids.graphics.diagnostics :as diagnostics]
+            [clojure-boids.graphics.effects.core :as effect]
+            [clojure-boids.graphics.effects.boid-trail :as boid-trail])
   (:import [java.lang.Math]
            [org.lwjgl.opengl GL11]))
 
+
+(defn init-effects [world]
+  (let [effects-list [{:effect boid-trail/id :max-history 5 :histories {}}]]
+    (def effects (map #(effect/init % world) effects-list))))
+
 (defn init [world diagnostics?]
+  (init-effects world)
   (GL11/glShadeModel GL11/GL_SMOOTH)
   (GL11/glEnable GL11/GL_BLEND)
   (GL11/glBlendFunc GL11/GL_SRC_ALPHA GL11/GL_ONE_MINUS_SRC_ALPHA)
@@ -16,7 +24,7 @@
 (defn clear []
   (GL11/glClear (bit-or GL11/GL_COLOR_BUFFER_BIT GL11/GL_DEPTH_BUFFER_BIT)))
 
-(defn draw-boid [{:keys [s a]}]
+(defn draw-boid [{:keys [n s a]}]
   (let [[x y] s]
     (GL11/glPushMatrix)
     (GL11/glTranslatef x y 0)
@@ -32,7 +40,8 @@
 (defn draw-world [world]
   (doall (map draw-boid (world :boids))))
 
-(defn draw [world diagnostics?]
+(defn render [world diagnostics?]
+  (doall (map #(effect/update % world) effects))
   (clear)
   (draw-world world)
   (if diagnostics? (diagnostics/draw world)))
