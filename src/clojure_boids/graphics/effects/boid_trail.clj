@@ -3,8 +3,10 @@
 
 (def id :boid-trail)
 
-(defmethod effect/init key [e {:keys [boids] :as world}]
-  (assoc e :histories (apply hash-map (mapcat #([(% :n) [(% :s)]]) boids))))
+(defmethod effect/init id [e {:keys [boids] :as world}]
+  (assoc e :histories 
+         (apply hash-map 
+                (mapcat #(vector (% :n) [(% :s)]) boids))))
 
 (defn updated-history [{:keys [histories max-history]} {:keys [n s] :as boid}]
   (let [h (histories n)]
@@ -12,7 +14,7 @@
       (conj (vec (rest h)) s)
       (conj h s))))
 
-(defmethod effect/update [e {:keys [boids] :as world}]
+(defmethod effect/update id [e {:keys [boids] :as world}]
   (assoc e :histories 
          (apply hash-map 
-                (mapcat #([(% :n) (updated-history e %)]) boids))))
+                (mapcat #(vector (% :n) (updated-history e %)) boids))))

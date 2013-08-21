@@ -41,7 +41,7 @@
   (doall (map draw-boid (world :boids))))
 
 (defn render [world diagnostics?]
-  (doall (map #(effect/update % world) effects))
+  (def effects-list (doall (map #(effect/update % world) effects)))
   (clear)
   (draw-world world)
   (if diagnostics? (diagnostics/draw world)))
