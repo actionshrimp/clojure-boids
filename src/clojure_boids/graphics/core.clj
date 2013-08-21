@@ -6,7 +6,7 @@
            [org.lwjgl.opengl GL11]))
 
 (defn init-effects [world]
-  (let [effects-list [{:effect boid-trail/id :max-history 5 :histories {}}]]
+  (let [effects-list [{:effect boid-trail/id :max-history 50 :histories {}}]]
     (def effects (map #(effect/init % world) effects-list))))
 
 (defn init [world diagnostics?]
@@ -42,5 +42,6 @@
 (defn render [world diagnostics?]
   (def effects (doall (map #(effect/update % world) effects)))
   (clear)
+  (doall (map effect/draw effects))
   (draw-world world)
   (if diagnostics? (diagnostics/draw world)))

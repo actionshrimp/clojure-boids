@@ -5,7 +5,7 @@
 
 (def world-size [800 600])
 (def boid-count 200)
-(def diagnostics? true)
+(def diagnostics? false)
 (def parallel? true)
 
 (defn init [world]

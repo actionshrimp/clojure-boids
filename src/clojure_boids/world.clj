@@ -20,7 +20,7 @@
 
 (defn update-boids-parallel [dt {:keys [boids] :as w}]
   (let [n (count boids)
-        num-chunks 4
+        num-chunks 8
         chunk-size (int (+ 1 (/ n num-chunks)))
         chunks (partition chunk-size chunk-size [] boids)
         update-boid #(boid/update dt w %)]
