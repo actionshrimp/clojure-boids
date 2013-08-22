@@ -14,8 +14,8 @@
 (def awareness panic-distance)
 (def wall-evasion 5)
 (def alignment 100)
-(def separation 1000)
-(def cohesion 100)
+(def separation 2000)
+(def cohesion 200)
 
 (defn spatial-hash-key [boid]
   (map #(int (/ % awareness)) (boid :s)))

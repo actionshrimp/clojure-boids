@@ -22,7 +22,7 @@
 
 (defn draw-trail [t]
   (let [len (count t)
-        start-alpha 0.5
+        start-alpha 0.2
         alpha #(- start-alpha (* % (/ start-alpha len)))]
     (GL11/glLineWidth 5)
     (GL11/glBegin GL11/GL_LINE_STRIP)

@@ -29,7 +29,7 @@
     (GL11/glTranslatef x y 0)
     (GL11/glRotatef (Math/toDegrees a) 0 0 -1)
     (GL11/glBegin GL11/GL_TRIANGLES)
-    (GL11/glColor3f 0 1 1)
+    (GL11/glColor3f 0.8 0.8 1)
     (GL11/glVertex2f -5 -5)
     (GL11/glVertex2f 5 -5)
     (GL11/glVertex2f 0 5)
