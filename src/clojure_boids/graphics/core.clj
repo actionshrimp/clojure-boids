@@ -6,7 +6,7 @@
            [org.lwjgl.opengl GL11]))
 
 (defn init-effects [world]
-  (let [effects-list [{:effect boid-trail/id :length 50 :histories {}}]]
+  (let [effects-list [{:effect boid-trail/id :length 100 :histories {}}]]
     (def effects (map #(effect/init % world) effects-list))))
 
 (defn init [world diagnostics?]
@@ -29,7 +29,7 @@
     (GL11/glTranslatef x y 0)
     (GL11/glRotatef (Math/toDegrees a) 0 0 -1)
     (GL11/glBegin GL11/GL_TRIANGLES)
-    (GL11/glColor3f 0.5 0.5 1.0)
+    (GL11/glColor3f 0 1 1)
     (GL11/glVertex2f -5 -5)
     (GL11/glVertex2f 5 -5)
     (GL11/glVertex2f 0 5)

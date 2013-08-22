@@ -22,7 +22,9 @@
 
 (defn draw-trail [t]
   (let [len (count t)
-        alpha #(- 1 (* % (/ 1 len)))]
+        start-alpha 0.5
+        alpha #(- start-alpha (* % (/ start-alpha len)))]
+    (GL11/glLineWidth 5)
     (GL11/glBegin GL11/GL_LINE_STRIP)
     (doall (map-indexed (fn [i {:keys [s]}]
                           (GL11/glColor4f 1 1 1 (alpha i))
